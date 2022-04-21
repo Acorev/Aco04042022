@@ -16,10 +16,10 @@ export class Docks {
     };
 
     // Ajout de produits au dock 
-    addDock = (prodId, prodQuantity, prodColors) => {
+    addDock(prodId, prodQuantity, prodColors) {
         prodQuantity = parseInt(prodQuantity);
 
-        if (validation(prodQuantity, prodColors)) {
+        if (this.validation(prodQuantity, prodColors)) {
 
             const clef = prodId + "_" + prodColors;
 
@@ -33,35 +33,38 @@ export class Docks {
     };
 
     // Ajout de quantité suplémantaire au dock
-    addDockQuantity = (prodId, prodQuantity) => {
+    addDockQuantity(prodId, prodQuantity) {
         prodQuantity = parseInt(prodQuantity);
         this.dock[prodId]["quantity"] = prodQuantity;
         this.saveDock();
     };
 
     // Efface le produit par son id
-    removeDock = (prodId) => {
+    removeDock(prodId) {
         delete this.dock[prodId];
         this.saveDock();
     };
 
     // Sauvegarde du dock dans le localstorage
-    saveDock = () => {
-        localStorage.setItem( this.item, JSON.stringify(this.dock));
+    saveDock() {
+        localStorage.setItem(this.item, JSON.stringify(this.dock));
     };
 
     // Sauvegarde externe dans le localstorage
     saveDockOut = (name, data) => {
-        localStorage.setItem( name, JSON.stringify(data));
+        localStorage.setItem(name, JSON.stringify(data));
     };
+
+    // validation des entrées dock
+    validation(prodQuantity, prod_colors) {
+        if (isNaN(prodQuantity)) return false;
+        if (prodQuantity <= 0) return false;
+        if (prodQuantity >= 101) return false;
+        if (prodQuantity === '') return false;
+        if (prod_colors !== undefined) {
+            if (prod_colors == '') return false;
+        }
+        
+        return true;
+    }
 };
-
-// validation des entrées dock
-let validation = (prodQuantity, prod_colors) => {
-    if (isNaN(prodQuantity)) return false;
-    if (prodQuantity <= 0) return false;
-    if (prodQuantity >= 101) return false;
-    if (prod_colors == '') return false;
-
-    return true;
-}

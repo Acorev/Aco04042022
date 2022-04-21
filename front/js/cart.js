@@ -1,30 +1,31 @@
-import { getData } from "./utils/getdata.js";
+import { getData, getConfig } from "./utils/getdata.js";
 import { Docks } from "./class/docks.js";
 
-const paniers = new Docks('panier');
-const panier = paniers.dock;
 const products = getData("/api/products/");
+
+const docks = new Docks(getConfig.basket);
+
 // Affichage sur la page html
 (async () => {
   products.then(data => {
-    for (let item in panier) {
-      let prod = data.filter(value => value._id == panier[item].id)[0];
+    for (let item in docks.dock) {
+      let prod = data.filter(value => value._id == docks.dock[item].id)[0];
       document.querySelector("#cart__items").innerHTML +=
         `
-          <article class="cart__item" data-id="${panier[item].id}" data-color="${panier[item].color}">
+          <article class="cart__item" data-id="${docks.dock[item].id}" data-color="${docks.dock[item].color}">
               <div class="cart__item__img">
                 <img src="${prod.imageUrl}" alt="${prod.altTxt}">
               </div>
               <div class="cart__item__content">
                 <div class="cart__item__content__description">
                   <h2>${prod.name}</h2>
-                  <p>${panier[item].color}</p>
+                  <p>${docks.dock[item].color}</p>
                   <p>${prod.price} €</p>
                 </div>
                 <div class="cart__item__content__settings">
                   <div class="cart__item__content__settings__quantity">
                     <p>Qté : </p>
-                    <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${panier[item].quantity}">
+                    <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${docks.dock[item].quantity}">
                   </div>
                   <div class="cart__item__content__settings__delete">
                     <p class="deleteItem">Supprimer</p>
@@ -48,8 +49,14 @@ document.body.addEventListener('change', event => {
     let dataId = cartItem.dataset.id;
     let dataColor = cartItem.dataset.color;
     let dataIdColor = dataId + '_' + dataColor;
+    let nbQuantity = parseInt(event.target.value);
 
-    paniers.addDockQuantity(dataIdColor, event.target.value);
+    if (docks.validation(event.target.value)) {
+      docks.addDockQuantity(dataIdColor, event.target.value);
+    } else {
+      event.target.value = 1;
+    }
+
     nbArticle();
     nbtPrice();
   }
@@ -63,7 +70,7 @@ document.body.addEventListener('click', event => {
     const dataId = cartItem.dataset.id + '_' + cartItem.dataset.color;
 
     cartItem.remove();
-    paniers.removeDock(dataId);
+    docks.removeDock(dataId);
     nbArticle();
     nbtPrice();
   }
@@ -76,8 +83,8 @@ document.body.addEventListener('click', event => {
 // calcul nombre d'article totale
 function nbArticle() {
   let nbIntemTotal = 0;
-  for (let key in panier) {
-    nbIntemTotal += panier[key].quantity;
+  for (let key in docks.dock) {
+    nbIntemTotal += docks.dock[key].quantity;
   }
   document.querySelector('#totalQuantity').innerText = nbIntemTotal;
 };
@@ -86,9 +93,9 @@ function nbArticle() {
 function nbtPrice() {
   products.then(data => {
     let prixArticleTotale = 0;
-    for (let key in panier) {
-      let prixArticle = data.filter(item => item._id == panier[key].id)[0].price;
-      let quantitéArticle = panier[key].quantity;
+    for (let key in docks.dock) {
+      let prixArticle = data.filter(item => item._id == docks.dock[key].id)[0].price;
+      let quantitéArticle = docks.dock[key].quantity;
       prixArticleTotale += prixArticle * quantitéArticle;
     }
     document.querySelector('#totalPrice').innerText = prixArticleTotale;
@@ -97,21 +104,16 @@ function nbtPrice() {
 
 // validation du formulaire
 let validInput = (event) => {
-  event.preventDefault();
   const form = event.target.closest(".cart__order__form");
   const input = Array.from(form);
   const inputText = input.filter(item => item.type === 'text' || item.type === 'email');
 
   let valid = true;
   inputText.forEach(element => {
-
-    // Ajout d'un regex avec l'attibut pattern
-    if (element.name === 'firstName' || element.name === 'lastName') {
-      element.removeAttribute("required");
-      element.setAttribute("pattern", '[a-zA-Z-]+');
-      element.setAttribute("required", '');
-    }
-
+    validationRegex(event, element);
+    
+    
+    // Valide formulaire true
     valid &&= element.checkValidity();
     messageErr(valid, element);
 
@@ -121,6 +123,22 @@ let validInput = (event) => {
     formSubmit();
   }
 };
+
+// validation regex formulaire
+function validationRegex(event, element){
+
+  // Ajout d'un regex avec l'attibut pattern
+  element.removeAttribute("required");
+  if(element.name === 'email'){
+      element.setAttribute("pattern", "[^@]+@[^@]+.[a-z-]{2,}");
+      event.preventDefault();
+  }else{
+    element.setAttribute("pattern", '[a-zA-Zè-ë]{4,20}');
+    event.preventDefault();
+  }
+  element.setAttribute("required", '');
+  
+}
 
 // Affichage message d'erreur
 let messageErr = (valid, element) => {
@@ -136,8 +154,8 @@ let formSubmit = () => {
 
   // Array du panier pour l'envoie
   var products = [];
-  for (var key in panier) {
-    products.push(panier[key].id);
+  for (var key in docks.dock) {
+    products.push(docks.dock[key].id);
   }
 
   // Object du formulaire et array pannier pour envoie
@@ -145,12 +163,13 @@ let formSubmit = () => {
     contact: {
       firstName: firstName.value,
       lastName: lastName.value,
-      address: lastName.value,
+      address: address.value,
       city: city.value,
       email: email.value,
     },
     products: products
   }
+  
 
   // envoie de l'object order
   const option = {
@@ -165,7 +184,4 @@ let formSubmit = () => {
   getReponse.then(data => {
     document.location.href = 'confirmation.html?id=' + data.orderId;
   });
-
-  console.log(products);
-  
 };

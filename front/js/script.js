@@ -1,13 +1,11 @@
-import {getData} from "./utils/getdata.js";
-
+import { getData } from "./utils/getdata.js";
 // Affichage sur la page html
-document.addEventListener("DOMContentLoaded", async () => {
+(async () => {
     var products = products = getData("/api/products/");
-    
     products.then(data => {
-        for(let item of data){
+        for (let item of data) {
             document.querySelector("#items").innerHTML +=
-            `
+                `
             <a href="./product.html?id=${item._id}">
                 <article>
                     <img src="${item.imageUrl}" alt="${item.altTxt}">
@@ -17,5 +15,5 @@ document.addEventListener("DOMContentLoaded", async () => {
             </a>
             `
         }
-    });
-})
+    })
+})();
