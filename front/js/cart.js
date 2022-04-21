@@ -111,8 +111,8 @@ let validInput = (event) => {
   let valid = true;
   inputText.forEach(element => {
     validationRegex(event, element);
-    
-    
+
+
     // Valide formulaire true
     valid &&= element.checkValidity();
     messageErr(valid, element);
@@ -125,22 +125,47 @@ let validInput = (event) => {
 };
 
 // validation regex formulaire
-function validationRegex(event, element){
+function validationRegex(event, element) {
 
-  // Ajout d'un regex avec l'attibut pattern
   element.removeAttribute("required");
-  if(element.name === 'email'){
-      element.setAttribute("pattern", "[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+.[a-zA-Z.]{2,15}");
-      event.preventDefault();
-  }else if(element.name === 'adress'){
-    element.setAttribute("pattern", '[a-zA-Z0-9è-ë ]{4,20}');
-    event.preventDefault();
-  }else{
-    element.setAttribute("pattern", '[a-zA-Zè-ë ]{4,20}');
-    event.preventDefault();
+  switch (element) {
+    case firstName:
+      regexChr()
+      break;
+    case lastName:
+      regexChr()
+      break;
+    case address:
+      regexChrNum()
+      break;
+    case city:
+      regexChr()
+      break;
+    case email:
+      regexEmail
+      break;
+    default:
+      break;
   }
   element.setAttribute("required", '');
-  
+
+  // regex firstName, lastName, city
+  function regexChr() {
+    event.preventDefault();
+    return element.setAttribute("pattern", '[a-zA-Zè-ë ]{4,20}');
+  };
+
+  // regex address
+  function regexChrNum() {
+    event.preventDefault();
+    return element.setAttribute("pattern", '[a-zA-Z0-9è-ë ]{4,20}');
+  };
+
+  // email
+  function regexEmail() {
+    event.preventDefault();
+    element.setAttribute("pattern", "[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+.[a-zA-Z.]{2,15}");
+  };
 }
 
 // Affichage message d'erreur
@@ -172,7 +197,7 @@ let formSubmit = () => {
     },
     products: products
   }
-  
+
 
   // envoie de l'object order
   const option = {
@@ -182,9 +207,12 @@ let formSubmit = () => {
       'Content-Type': 'application/json',
     }
   };
-
-  let getReponse = getData("/api/products/order", option);
-  getReponse.then(data => {
-    document.location.href = 'confirmation.html?id=' + data.orderId;
-  });
+  
+  if (localStorage.getItem(getConfig.basket) !== null) {
+    let getReponse = getData("/api/products/order", option);
+    getReponse.then(data => {
+      localStorage.clear();
+      document.location.href = 'confirmation.html?id=' + data.orderId;
+    });
+  }
 };

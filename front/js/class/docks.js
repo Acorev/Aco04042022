@@ -50,11 +50,6 @@ export class Docks {
         localStorage.setItem(this.item, JSON.stringify(this.dock));
     };
 
-    // Sauvegarde externe dans le localstorage
-    saveDockOut = (name, data) => {
-        localStorage.setItem(name, JSON.stringify(data));
-    };
-
     // validation des entrées dock
     validation(prodQuantity, prod_colors) {
         if (isNaN(prodQuantity)) return false;
@@ -64,7 +59,7 @@ export class Docks {
         if (prod_colors !== undefined) {
             if (prod_colors == '') return false;
         }
-        
+
         return true;
     }
 };
