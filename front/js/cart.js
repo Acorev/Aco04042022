@@ -130,10 +130,13 @@ function validationRegex(event, element){
   // Ajout d'un regex avec l'attibut pattern
   element.removeAttribute("required");
   if(element.name === 'email'){
-      element.setAttribute("pattern", "[^@]+@[^@]+.[a-z-]{2,}");
+      element.setAttribute("pattern", "[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+.[a-zA-Z.]{2,15}");
       event.preventDefault();
+  }else if(element.name === 'adress'){
+    element.setAttribute("pattern", '[a-zA-Z0-9è-ë ]{4,20}');
+    event.preventDefault();
   }else{
-    element.setAttribute("pattern", '[a-zA-Zè-ë]{4,20}');
+    element.setAttribute("pattern", '[a-zA-Zè-ë ]{4,20}');
     event.preventDefault();
   }
   element.setAttribute("required", '');
