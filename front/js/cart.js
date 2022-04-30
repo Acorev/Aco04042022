@@ -183,8 +183,8 @@ let messageErr = (valid, element) => {
 let formSubmit = () => {
 
   // Array du panier pour l'envoie
-  var products = [];
-  for (var key in docks.dock) {
+  let products = [];
+  for (let key in docks.dock) {
     products.push(docks.dock[key].id);
   }
 
