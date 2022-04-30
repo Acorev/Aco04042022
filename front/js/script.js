@@ -1,7 +1,7 @@
 import { getData } from "./utils/getdata.js";
 // Affichage sur la page html
 (async () => {
-    var products = products = getData("/api/products/");
+    let products = getData("/api/products/");
     products.then(data => {
         for (let item of data) {
             document.querySelector("#items").innerHTML +=
@@ -15,5 +15,7 @@ import { getData } from "./utils/getdata.js";
             </a>
             `
         }
-    })
+    }).catch(error => {
+        console.log(error)
+    });
 })();

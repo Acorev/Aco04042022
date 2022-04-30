@@ -35,6 +35,8 @@ const docks = new Docks(getConfig.basket);
             </article>
       `;
     }
+  }).catch(error => {
+    console.log(error)
   });
 })();
 
@@ -42,7 +44,7 @@ nbArticle();
 nbtPrice();
 
 // Ecouteur d'event change
-document.body.addEventListener('change', event => {
+document.addEventListener('change', event => {
   // Event changement de quantité article
   if (event.target.className == "itemQuantity") {
     let cartItem = event.target.closest(".cart__item");
@@ -63,7 +65,7 @@ document.body.addEventListener('change', event => {
 });
 
 // Ecouteur d'event click
-document.body.addEventListener('click', event => {
+document.addEventListener('click', event => {
   // Event supprime l'item selectionné
   if (event.target.className == "deleteItem") {
     const cartItem = event.target.closest(".cart__item");
@@ -207,7 +209,7 @@ let formSubmit = () => {
       'Content-Type': 'application/json',
     }
   };
-  
+
   if (localStorage.getItem(getConfig.basket) !== null) {
     let getReponse = getData("/api/products/order", option);
     getReponse.then(data => {
